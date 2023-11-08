@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: registry-network-policy
+  namespace: democloudops
+spec:
+  podSelector:
+    matchLabels:
+      app: registry-cloudops
+.  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: registry-cloudops
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: registry-cloudops

@@ -1,0 +1,125 @@
+# RBAC configuration for democloudops namespace
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: democloudops
+  name: velero
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: democloudops
+  name: velero
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - persistentvolumeclaims
+  - persistentvolumes
+  - storageclasses
+  - events
+  verbs:
+  - "*"
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - "*"
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  - jobs
+  verbs:
+  - "*"
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - "*"
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: velero-binding
+  namespace: democloudops
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: velero
+subjects:
+- kind: ServiceAccount
+  name: velero
+  namespace: democloudops
+
+# RBAC configuration for velero namespace
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: velero
+  name: velero
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: velero
+  name: velero
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - persistentvolumeclaims
+  - persistentvolumes
+  - storageclasses
+  - events
+  - secrets  # Add secrets resource
+  verbs:
+  - "*"
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - daemonsets  # Add daemonsets resource
+  verbs:
+  - "*"
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  - jobs
+  verbs:
+  - "*"
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - "*"
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: velero-binding
+  namespace: velero
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: velero
+subjects:
+- kind: ServiceAccount
+  name: velero
+  namespace: velero

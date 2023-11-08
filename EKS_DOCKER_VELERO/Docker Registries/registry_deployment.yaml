@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registry-cloudops
+  namespace: democloudops
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: registry-cloudops
+  template:
+    metadata:
+      labels:
+        app: registry-cloudops
+    spec:
+      initContainers:
+        - name: init-registry-data
+          image: alpine
+          command: ["sh", "-c", "mkdir -p /var/lib/10weeksofcloudops"]
+      containers:
+        - name: registry-cloudops
+          image: registry:2.8.2
+          ports:
+            - containerPort: 443
+          volumeMounts:
+            - name: tls-certs
+              mountPath: /home/seron/certs
+            - name: auth-secret
+              mountPath: /home/seron/auth
+            - name: data-volume
+              mountPath: /var/lib/10weeksofcloudops
+          resources:
+            requests:
+              memory: "1Gi"
+            limits:
+              memory: "2Gi"
+      volumes:
+        - name: tls-certs
+          hostPath:
+            path: /home/seron/certs
+        - name: auth-secret
+          hostPath:
+            path: /home/seron/auth
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: registry-data-pvc
